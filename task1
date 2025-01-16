@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Food Management System</title>
+  <style>body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+  }
+  
+  header {
+    background-color: #4caf50;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+  }
+  
+  main {
+    padding: 1rem;
+  }
+  
+  h2 {
+    color: #333;
+  }
+  
+  form {
+    margin-bottom: 1rem;
+  }
+  
+  form input, form textarea, form select, form button {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+  }
+  
+  form button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  form button:hover {
+    background-color: #45a049;
+  }
+  
+  #patient-list, #diet-list {
+    margin-top: 1rem;
+  }
+  
+  .card {
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 5px;
+  }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Hospital Food Management System</h1>
+  </header>
+
+  <main>
+    <!-- Patient Management -->
+    <section id="patient-management">
+      <h2>Manage Patients</h2>
+      <form id="patient-form">
+        <input type="text" id="patient-name" placeholder="Patient Name" required>
+        <input type="text" id="patient-diseases" placeholder="Diseases">
+        <input type="text" id="patient-allergies" placeholder="Allergies">
+        <input type="text" id="room-number" placeholder="Room Number" required>
+        <input type="text" id="bed-number" placeholder="Bed Number" required>
+        <input type="text" id="floor-number" placeholder="Floor Number" required>
+        <input type="number" id="patient-age" placeholder="Age" required>
+        <input type="text" id="patient-gender" placeholder="Gender" required>
+        <input type="text" id="contact-info" placeholder="Contact Info" required>
+        <input type="text" id="emergency-contact" placeholder="Emergency Contact" required>
+        <button type="submit">Add Patient</button>
+      </form>
+      <div id="patient-list"></div>
+    </section>
+
+    <!-- Diet Chart Management -->
+    <section id="diet-chart-management">
+      <h2>Create Diet Chart</h2>
+      <form id="diet-chart-form">
+        <select id="diet-patient-select" required>
+          <option value="">Select Patient</option>
+        </select>
+        <input type="text" id="morning-meal" placeholder="Morning Meal" required>
+        <input type="text" id="evening-meal" placeholder="Evening Meal" required>
+        <input type="text" id="night-meal" placeholder="Night Meal" required>
+        <textarea id="diet-instructions" placeholder="Special Instructions"></textarea>
+        <button type="submit">Add Diet Chart</button>
+      </form>
+      <div id="diet-list"></div>
+    </section>
+  </main>
+
+  <script>const patientForm = document.getElementById("patient-form");
+    const patientList = document.getElementById("patient-list");
+    const dietForm = document.getElementById("diet-chart-form");
+    const dietPatientSelect = document.getElementById("diet-patient-select");
+    const dietList = document.getElementById("diet-list");
+    
+    let patients = [];
+    let dietCharts = [];
+    
+    // Add Patient
+    patientForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+    
+      const patient = {
+        id: Date.now(),
+        name: document.getElementById("patient-name").value,
+        diseases: document.getElementById("patient-diseases").value,
+        allergies: document.getElementById("patient-allergies").value,
+        roomNumber: document.getElementById("room-number").value,
+        bedNumber: document.getElementById("bed-number").value,
+        floorNumber: document.getElementById("floor-number").value,
+        age: document.getElementById("patient-age").value,
+        gender: document.getElementById("patient-gender").value,
+        contactInfo: document.getElementById("contact-info").value,
+        emergencyContact: document.getElementById("emergency-contact").value,
+      };
+    
+      patients.push(patient);
+      updatePatientList();
+      updatePatientSelect();
+      patientForm.reset();
+    });
+    
+    // Update Patient List
+    function updatePatientList() {
+      patientList.innerHTML = patients
+        .map(
+          (p) => `
+        <div class="card">
+          <h3>${p.name}</h3>
+          <p>Room: ${p.roomNumber} | Bed: ${p.bedNumber} | Floor: ${p.floorNumber}</p>
+          <p>Age: ${p.age} | Gender: ${p.gender}</p>
+          <p>Diseases: ${p.diseases || "None"}</p>
+          <p>Allergies: ${p.allergies || "None"}</p>
+          <p>Contact: ${p.contactInfo} | Emergency: ${p.emergencyContact}</p>
+        </div>
+      `
+        )
+        .join("");
+    }
+    
+    // Update Patient Select Dropdown
+    function updatePatientSelect() {
+      dietPatientSelect.innerHTML = `
+        <option value="">Select Patient</option>
+        ${patients.map((p) => `<option value="${p.id}">${p.name}</option>`).join("")}
+      `;
+    }
+    
+    // Add Diet Chart
+    dietForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+    
+      const dietChart = {
+        patientId: dietPatientSelect.value,
+        morning: document.getElementById("morning-meal").value,
+        evening: document.getElementById("evening-meal").value,
+        night: document.getElementById("night-meal").value,
+        instructions: document.getElementById("diet-instructions").value,
+      };
+    
+      dietCharts.push(dietChart);
+      updateDietList();
+      dietForm.reset();
+    });
+    
+    // Update Diet Chart List
+    function updateDietList() {
+      dietList.innerHTML = dietCharts
+        .map((diet) => {
+          const patient = patients.find((p) => p.id == diet.patientId);
+          return `
+            <div class="card">
+              <h3>Diet for ${patient.name}</h3>
+              <p>Morning: ${diet.morning}</p>
+              <p>Evening: ${diet.evening}</p>
+              <p>Night: ${diet.night}</p>
+              <p>Instructions: ${diet.instructions || "None"}</p>
+            </div>
+          `;
+        })
+        .join("");
+    }
+    </script>
+</body>
+</html>
